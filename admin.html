@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workspace Pro | Trading Insight</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { 
+                    colors: { bgMain: '#050505', surface: '#0f0f11', borderLight: '#27272a', textMain: '#f8fafc', textMuted: '#8b8b93', accent: '#00e58f'},
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'], serif: ['"Lora"', 'serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050505; color: #f8fafc; overflow: hidden; font-family: 'Inter', sans-serif; }
+        
+        .meta-input { background: #0a0a0c; border: 1px solid #27272a; padding: 0.7rem 1rem; border-radius: 10px; font-size: 0.85rem; color: #f8fafc; transition: all 0.2s; width: 100%;}
+        .meta-input:focus { border-color: #00e58f; outline: none; box-shadow: 0 0 0 2px rgba(0,229,143,0.1); }
+        
+        .md-toolbar { background: rgba(15,15,17,0.85); backdrop-filter: blur(12px); border: 1px solid #27272a; border-radius: 12px; padding: 0.35rem; display: inline-flex; gap: 0.25rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
+        .md-toolbar button { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #a1a1aa; font-size: 0.9rem; transition: all 0.2s;}
+        .md-toolbar button:hover { background-color: #27272a; color: #f8fafc; }
+        
+        textarea#postContent { font-family: "Lora", serif; font-size: 1.15rem; line-height: 1.8; resize: none;}
+        textarea#postContent::placeholder { color: #3f3f46; font-style: italic;}
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 6px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+        .preview-content { font-family: "Lora", serif; font-size: 1.05rem; line-height: 1.8; color: #d4d4d8; }
+        .preview-content h2 { font-family: "Inter", sans-serif; color: #fff; font-weight: 800; font-size: 1.5rem; margin-top: 1.5em; margin-bottom: 0.5em; }
+        .preview-content p { margin-bottom: 1.2em; }
+        .preview-content img { border-radius: 8px; width: 100%; margin: 1.5em 0; border: 1px solid #27272a; }
+        .preview-content blockquote { font-style: italic; border-left: 3px solid #00e58f; padding-left: 1rem; color: #a1a1aa;}
+        
+        .toast { position: fixed; bottom: 24px; right: 24px; background: #fff; color: #050505; padding: 14px 24px; border-radius: 12px; font-weight: 600; font-size: 0.85rem; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 9999; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);}
+        .toast.show { transform: translateY(0); opacity: 1; }
+    </style>
+</head>
+<body class="antialiased h-screen flex">
+
+    <aside class="w-[280px] border-r border-borderLight flex flex-col bg-[#050505] z-10 shrink-0">
+        <div class="h-16 border-b border-borderLight flex items-center px-6 shrink-0">
+            <a href="index.html" class="font-black text-sm tracking-tight flex items-center gap-3 hover:text-accent transition">
+                <div class="w-7 h-7 bg-accent text-background rounded flex items-center justify-center text-xs"><i class="fa-solid fa-layer-group"></i></div>
+                <span class="text-white">Workspace <span class="text-[10px] text-textMuted align-top">PRO</span></span>
+            </a>
+        </div>
+        
+        <div class="p-5 border-b border-borderLight">
+            <button onclick="clearForm()" class="w-full bg-white hover:bg-gray-200 text-[#050505] font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm shadow-sm">
+                <i class="fas fa-pen text-xs"></i> Viết bài mới
+            </button>
+        </div>
+        
+        <div class="px-5 pb-2 text-[10px] font-bold text-textMuted uppercase tracking-widest mt-5 mb-2">Quản lý nội dung</div>
+        
+        <div class="flex-1 overflow-y-auto px-3 space-y-1" id="post-list-sidebar"></div>
+
+        <div class="p-4 border-t border-borderLight flex gap-2 shrink-0 bg-[#050505]">
+            <input type="file" id="importFile" class="hidden" accept=".json">
+            <button onclick="document.getElementById('importFile').click()" class="flex-1 text-xs font-semibold text-textMuted hover:text-white transition py-2 rounded-lg border border-borderLight hover:bg-surface"><i class="fas fa-upload mr-1"></i> Nhập</button>
+            <button onclick="exportJSON()" class="flex-1 text-xs font-semibold text-textMuted hover:text-white transition py-2 rounded-lg border border-borderLight hover:bg-surface"><i class="fas fa-download mr-1"></i> Xuất</button>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col bg-[#050505] relative overflow-y-auto" id="editor-area">
+        <div class="sticky top-0 bg-[#050505]/80 backdrop-blur-xl px-8 py-4 border-b border-borderLight flex justify-between items-center z-10">
+            <div class="flex items-center gap-3">
+                <span id="save-status" class="text-xs font-medium text-textMuted flex items-center gap-1.5"><i class="fas fa-check-circle text-accent" id="save-icon"></i> <span id="save-text">Đã đồng bộ</span></span>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="savePost('draft')" class="text-sm font-bold px-5 py-2 rounded-lg border border-borderLight text-gray-300 hover:text-white hover:bg-surface transition">Lưu nháp</button>
+                <button onclick="savePost('published')" class="text-sm font-bold px-6 py-2 rounded-lg bg-accent text-background hover:bg-[#00c97d] transition shadow-[0_4px_14px_rgba(0,229,143,0.3)]">Xuất bản</button>
+            </div>
+        </div>
+
+        <div class="max-w-[800px] w-full mx-auto px-8 py-10 flex-1 flex flex-col">
+            <input type="hidden" id="postId">
+            
+            <input type="text" id="postTitle" spellcheck="false" class="w-full bg-transparent border-none text-[2.5rem] font-black text-white placeholder:text-borderLight focus:outline-none mb-4 leading-tight tracking-tight" placeholder="Nhập tiêu đề ấn tượng..." oninput="generateSlug()">
+            <input type="text" id="postExcerpt" spellcheck="false" class="w-full bg-transparent border-none text-lg text-textMuted placeholder:text-gray-600 focus:outline-none mb-8 font-serif" placeholder="Viết đoạn tóm tắt dẫn dắt người đọc...">
+
+            <div class="md-toolbar sticky top-24 z-20 flex flex-wrap gap-1 mb-8">
+                <button onclick="insertFormat('**', '**')" title="Bold"><i class="fas fa-bold"></i></button>
+                <button onclick="insertFormat('*', '*')" title="Italic"><i class="fas fa-italic"></i></button>
+                <div class="w-px h-5 bg-borderLight mx-1 self-center"></div>
+                <button onclick="insertFormat('## ', '')" title="Heading 2"><i class="fas fa-heading text-sm"></i><span class="text-xs ml-0.5">2</span></button>
+                <button onclick="insertFormat('### ', '')" title="Heading 3"><i class="fas fa-heading text-xs"></i><span class="text-xs ml-0.5">3</span></button>
+                <div class="w-px h-5 bg-borderLight mx-1 self-center"></div>
+                <button onclick="insertFormat('> ', '')" title="Quote"><i class="fas fa-quote-right"></i></button>
+                <button onclick="insertFormat('- ', '')" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+                <div class="w-px h-5 bg-borderLight mx-1 self-center"></div>
+                <button onclick="insertFormat('[', '](https://)')" title="Link"><i class="fas fa-link"></i></button>
+                <button onclick="insertFormat('![Alt text](', ')')" title="Image"><i class="far fa-image"></i></button>
+            </div>
+
+            <textarea id="postContent" spellcheck="false" class="w-full flex-1 bg-transparent text-gray-200 focus:outline-none placeholder:text-borderLight" placeholder="Bắt đầu câu chuyện của bạn (Markdown)... &#10;&#10;Mẹo: Nhấn Ctrl+V để dán trực tiếp hình ảnh vào đây." oninput="updatePreview()"></textarea>
+        </div>
+    </div>
+
+    <div class="w-[450px] xl:w-[500px] bg-surface overflow-y-auto hidden lg:flex flex-col border-l border-borderLight shrink-0">
+        <div class="sticky top-0 bg-surface/90 backdrop-blur-xl border-b border-borderLight px-6 py-4 flex justify-between items-center z-10">
+            <h3 class="text-[10px] font-bold text-textMuted uppercase tracking-widest flex items-center gap-2"><i class="far fa-eye text-accent"></i> Cấu hình & Xem trước</h3>
+        </div>
+        <div class="p-6 xl:p-8 space-y-8">
+            <div class="space-y-5 bg-[#050505] p-5 rounded-2xl border border-borderLight">
+                <div class="grid grid-cols-1 gap-5">
+                    <div>
+                        <label class="block text-[10px] text-textMuted mb-1.5 font-bold uppercase tracking-widest">URL Slug</label>
+                        <input type="text" id="postSlug" class="meta-input" placeholder="url-tu-dong">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] text-textMuted mb-1.5 font-bold uppercase tracking-widest">Chuyên mục</label>
+                            <select id="postCategory" class="meta-input appearance-none cursor-pointer">
+                                <option value="Intelligence">Intelligence</option>
+                                <option value="Markets">Markets</option>
+                                <option value="On-Chain Data">On-Chain Data</option>
+                                <option value="Research">Research</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-textMuted mb-1.5 font-bold uppercase tracking-widest">URL Ảnh Bìa</label>
+                            <input type="text" id="postImage" class="meta-input" placeholder="https://..." oninput="updatePreviewImage()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-px bg-borderLight w-full"></div>
+
+            <div class="px-2">
+                <img id="prev-image" src="" class="w-full rounded-xl mb-5 hidden object-cover border border-borderLight aspect-video shadow-lg">
+                <h1 id="prev-title" class="text-2xl font-bold text-white mb-6 leading-tight font-sans tracking-tight">Tiêu đề bài viết...</h1>
+                <div id="preview-pane" class="preview-content">
+                    <p class="text-gray-600 italic font-sans text-sm">Nội dung xem trước sẽ hiển thị tại đây...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"><i class="fas fa-check-circle text-accent text-lg"></i> <span id="toast-msg">Thành công</span></div>
+
+    <script>
+        const LOCAL_KEY = 'crypto_posts'; const DRAFT_KEY = 'crypto_draft_backup';
+        let posts = [];
+        const els = { id: document.getElementById('postId'), title: document.getElementById('postTitle'), exc: document.getElementById('postExcerpt'), slug: document.getElementById('postSlug'), cat: document.getElementById('postCategory'), img: document.getElementById('postImage'), content: document.getElementById('postContent'), prevTitle: document.getElementById('prev-title'), prevImg: document.getElementById('prev-image'), prevPane: document.getElementById('preview-pane') };
+
+        const ADMIN_PASS = 'tradinginsight123';
+
+        async function initData() {
+            const inputKey = window.prompt("WORKSPACE CMS: Nhập KHÓA TRUY CẬP để vào hệ thống Admin.", "");
+            // Fix: Dùng so sánh chuỗi trực tiếp, gỡ bỏ MD5 để không bị lỗi thư viện
+            if(!inputKey || inputKey !== ADMIN_PASS) { 
+                alert("Truy cập từ chối. Mật khẩu không đúng."); 
+                window.location.href = "index.html"; 
+                return; 
+            }
+
+            try {
+                let localData = localStorage.getItem(LOCAL_KEY);
+                if (localData) { 
+                    posts = JSON.parse(localData); 
+                } else { 
+                    const res = await fetch('./data/posts.json'); 
+                    if(res.ok) { 
+                        posts = await res.json(); 
+                        localStorage.setItem(LOCAL_KEY, JSON.stringify(posts)); 
+                    } 
+                }
+            } catch(e) {
+                console.warn("Dữ liệu trống hoặc lỗi đọc dữ liệu.");
+            }
+            
+            if(!Array.isArray(posts)) posts = [];
+            renderSidebar(); 
+            checkDraftBackup();
+        }
+
+        function insertFormat(prefix, suffix) {
+            const ta = els.content; const start = ta.selectionStart, end = ta.selectionEnd;
+            const text = ta.value, selected = text.substring(start, end);
+            const replacement = prefix + selected + suffix;
+            ta.value = text.substring(0, start) + replacement + text.substring(end);
+            ta.focus(); ta.selectionStart = selected.length === 0 ? start + prefix.length : start; ta.selectionEnd = selected.length === 0 ? start + prefix.length : start + replacement.length;
+            updatePreview();
+        }
+
+        els.content.addEventListener('paste', function(e) {
+            const items = (e.clipboardData || window.clipboardData).items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    e.preventDefault(); const blob = items[i].getAsFile(); const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.createElement('canvas'); let width = img.width, height = img.height;
+                            if (width > 1200) { height = Math.round((height * 1200) / width); width = 1200; }
+                            canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                            const base64data = canvas.toDataURL('image/webp', 0.85); 
+                            const start = els.content.selectionStart, end = els.content.selectionEnd;
+                            const replacement = `\n![Image](${base64data})\n`;
+                            els.content.value = els.content.value.substring(0, start) + replacement + els.content.value.substring(end);
+                            els.content.selectionStart = els.content.selectionEnd = start + replacement.length;
+                            updatePreview(); showToast("Đã chèn ảnh thành công!");
+                        }; img.src = event.target.result;
+                    }; reader.readAsDataURL(blob); break;
+                }
+            }
+        });
+
+        function updatePreview() { els.prevPane.innerHTML = els.content.value ? marked.parse(els.content.value) : '<p class="text-gray-600 italic font-sans text-sm">Nội dung xem trước sẽ hiển thị tại đây...</p>'; els.prevTitle.innerText = els.title.value || 'Tiêu đề bài viết...'; }
+        function updatePreviewImage() { if(els.img.value) { els.prevImg.src = els.img.value; els.prevImg.classList.remove('hidden'); } else { els.prevImg.classList.add('hidden'); } }
+
+        function generateSlug() {
+            if(els.id.value !== "") return;
+            let s = els.title.value.toLowerCase().replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a').replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, 'e').replace(/i|í|ì|ỉ|ĩ|ị/gi, 'i').replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/gi, 'o').replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, 'u').replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, 'y').replace(/đ/gi, 'd');
+            els.slug.value = s.replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, ''); updatePreview();
+        }
+
+        function savePost(status) {
+            if(!els.title.value || !els.content.value) return alert("Cần nhập Tiêu đề và Nội dung!");
+            const isEdit = els.id.value !== ""; const postId = isEdit ? parseInt(els.id.value) : Date.now();
+            const postObj = { id: postId, title: els.title.value, slug: els.slug.value || String(postId), category: els.cat.value, image: els.img.value, excerpt: els.exc.value, content: els.content.value, author: "Trading Insight Team", date: isEdit ? posts.find(p=>p.id===postId).date : new Date().toISOString(), status: status };
+            if(isEdit) { const idx = posts.findIndex(p => p.id === postId); posts[idx] = postObj; } else { posts.unshift(postObj); els.id.value = postId; }
+            localStorage.setItem(LOCAL_KEY, JSON.stringify(posts)); localStorage.removeItem(DRAFT_KEY);
+            renderSidebar(); document.getElementById('side-item-'+postId)?.classList.add('bg-surface', 'border-l-accent');
+            showToast(`Đã ${status === 'published' ? 'Đăng Bài' : 'Lưu Nháp'} thành công!`); triggerSaveStatus();
+        }
+
+        function editPost(id) {
+            const p = posts.find(x => x.id === id); if(!p) return;
+            els.id.value = p.id; els.title.value = p.title; els.slug.value = p.slug; els.cat.value = p.category || 'Intelligence'; els.img.value = p.image || ''; els.exc.value = p.excerpt || ''; els.content.value = p.content;
+            updatePreview(); updatePreviewImage();
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('bg-surface', 'border-l-accent', 'border-l-transparent'));
+            document.getElementById('side-item-'+id).classList.add('bg-surface', 'border-l-accent');
+        }
+
+        function deletePost(id, event) {
+            event.stopPropagation();
+            if(confirm("Xóa bài viết này vĩnh viễn?")) { posts = posts.filter(x => x.id !== id); localStorage.setItem(LOCAL_KEY, JSON.stringify(posts)); renderSidebar(); if(els.id.value == id) clearForm(); showToast("Đã xóa bài viết!"); }
+        }
+
+        function clearForm() {
+            els.id.value = ''; els.title.value = ''; els.slug.value = ''; els.img.value = ''; els.exc.value = ''; els.content.value = '';
+            localStorage.removeItem(DRAFT_KEY); updatePreview(); updatePreviewImage();
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('bg-surface', 'border-l-accent')); els.title.focus();
+        }
+
+        function renderSidebar() {
+            const container = document.getElementById('post-list-sidebar'); container.innerHTML = '';
+            if(posts.length === 0) { container.innerHTML = '<p class="text-[10px] text-textMuted px-2 mt-4">Chưa có bài viết nào.</p>'; return; }
+            posts.forEach(p => {
+                const tag = p.status !== 'published' ? '<span class="text-[9px] bg-yellow-500/20 text-yellow-500 px-1.5 py-0.5 rounded uppercase">Nháp</span>' : '<span class="text-[9px] bg-accent/20 text-accent px-1.5 py-0.5 rounded uppercase">Pub</span>';
+                container.innerHTML += `
+                    <div id="side-item-${p.id}" class="sidebar-item group p-3.5 rounded-xl border-l-2 border-transparent hover:bg-surface cursor-pointer transition flex flex-col gap-1.5 relative" onclick="editPost(${p.id})">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 class="text-sm font-bold text-gray-200 group-hover:text-white leading-tight line-clamp-2 pr-6">${p.title}</h4>
+                            <button onclick="deletePost(${p.id}, event)" class="absolute right-3 top-3 text-borderLight hover:text-red-500 opacity-0 group-hover:opacity-100 transition"><i class="fas fa-trash-alt text-xs"></i></button>
+                        </div>
+                        <div class="flex items-center gap-2 mt-1">${tag} <span class="text-[10px] text-textMuted">${new Date(p.date).toLocaleDateString('vi-VN')}</span></div>
+                    </div>`;
+            });
+        }
+
+        setInterval(() => {
+            if (els.title.value || els.content.value) {
+                localStorage.setItem(DRAFT_KEY, JSON.stringify({ id: els.id.value, title: els.title.value, slug: els.slug.value, cat: els.cat.value, img: els.img.value, exc: els.exc.value, content: els.content.value })); triggerSaveStatus();
+            }
+        }, 15000);
+
+        function triggerSaveStatus() {
+            const txt = document.getElementById('save-text'), icon = document.getElementById('save-icon');
+            txt.innerText = "Đang đồng bộ..."; icon.className = "fas fa-sync fa-spin text-accent";
+            setTimeout(() => { txt.innerText = "Đã lưu tự động"; icon.className = "fas fa-check-circle text-accent"; }, 800);
+        }
+
+        function checkDraftBackup() {
+            const draftStr = localStorage.getItem(DRAFT_KEY);
+            if(draftStr) {
+                try {
+                    const d = JSON.parse(draftStr);
+                    if(confirm("Khôi phục bản nháp đang viết dở?")) { els.id.value = d.id||''; els.title.value = d.title||''; els.slug.value = d.slug||''; els.cat.value = d.cat||'Intelligence'; els.img.value = d.img||''; els.exc.value = d.exc||''; els.content.value = d.content||''; updatePreview(); updatePreviewImage(); } 
+                    else localStorage.removeItem(DRAFT_KEY);
+                } catch(e) { localStorage.removeItem(DRAFT_KEY); }
+            }
+        }
+
+        function exportJSON() {
+            if(!posts.length) return alert("Không có dữ liệu!");
+            const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(posts, null, 2)); a.download = "posts.json"; a.click(); showToast("Đã tải xuống file Backup");
+        }
+
+        document.getElementById('importFile').addEventListener('change', e => {
+            const file = e.target.files[0]; if(!file) return; const reader = new FileReader();
+            reader.onload = ev => { try { const parsed = JSON.parse(ev.target.result); if(Array.isArray(parsed)) { posts = parsed; localStorage.setItem(LOCAL_KEY, JSON.stringify(posts)); renderSidebar(); showToast("Khôi phục dữ liệu thành công!"); } } catch(err) { alert("File JSON không hợp lệ!"); } }; reader.readAsText(file);
+        });
+
+        function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+
+        initData();
+    </script>
+</body>
+</html>

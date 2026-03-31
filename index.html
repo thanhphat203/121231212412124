@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Insight - Premium Crypto Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#050505', surface: '#0f0f11', surfaceHover: '#1a1a1e',
+                        textMain: '#f8fafc', textMuted: '#8b8b93', accent: '#00e58f',
+                    },
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'], serif: ['"Lora"', 'serif'], }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050505; color: #f8fafc; overflow-x: hidden; selection: background-color #00e58f; selection: color #050505;}
+        
+        .floating-nav { background: rgba(15, 15, 17, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.04); box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.8); }
+        
+        .premium-card { background: linear-gradient(180deg, rgba(20,20,22,1) 0%, rgba(15,15,17,1) 100%); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); position: relative;}
+        .premium-card::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.05); pointer-events: none; }
+        .premium-card:hover { border-color: rgba(255, 255, 255, 0.12); box-shadow: 0 20px 40px -15px rgba(0,0,0,1); transform: translateY(-4px); }
+        
+        .ticker-wrap { width: 100%; overflow: hidden; background: #050505; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .ticker { display: inline-flex; white-space: nowrap; animation: ticker 40s linear infinite; }
+        .ticker:hover { animation-play-state: paused; }
+        .ticker-item { padding: 0.5rem 2.5rem; font-size: 0.8rem; color: #00e58f; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;}
+        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        
+        .img-zoom-container { overflow: hidden; }
+        .img-zoom-container img { transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform;}
+        .premium-card:hover .img-zoom-container img { transform: scale(1.03); }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00e58f; }
+
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="antialiased flex flex-col min-h-screen relative">
+
+    <div class="ticker-wrap h-9 flex items-center">
+        <div class="ticker">
+            <div class="ticker-item"><i class="fas fa-circle text-[6px] mr-3 align-middle"></i>Phân tích chuyên sâu & Dữ liệu On-chain</div>
+            <div class="ticker-item"><i class="fas fa-circle text-[6px] mr-3 align-middle"></i>Cập nhật tin tức thị trường 24/7</div>
+            <div class="ticker-item"><i class="fas fa-circle text-[6px] mr-3 align-middle"></i>Phân tích chuyên sâu & Dữ liệu On-chain</div>
+            <div class="ticker-item"><i class="fas fa-circle text-[6px] mr-3 align-middle"></i>Cập nhật tin tức thị trường 24/7</div>
+            <div class="ticker-item"><i class="fas fa-circle text-[6px] mr-3 align-middle"></i>Phân tích chuyên sâu & Dữ liệu On-chain</div>
+        </div>
+    </div>
+
+    <div class="sticky top-6 z-50 px-4 flex justify-center w-full pointer-events-none">
+        <header class="floating-nav w-full max-w-5xl rounded-full px-6 py-3 flex items-center justify-between pointer-events-auto transition-transform duration-500" id="navbar">
+            <a href="index.html" class="flex items-center gap-2 text-xl font-extrabold tracking-tight">
+                <span class="text-accent"><i class="fa-solid fa-layer-group"></i></span>
+                Trading<span class="text-textMuted font-medium">Insight</span>
+            </a>
+            
+            <nav class="hidden md:flex items-center gap-8 font-semibold text-[11px] text-textMuted uppercase tracking-widest">
+                <a href="#tag/INTELLIGENCE" class="hover:text-white transition-colors">Intelligence</a>
+                <a href="#tag/MARKETS" class="hover:text-white transition-colors">Markets</a>
+                <a href="#tag/ON-CHAIN DATA" class="hover:text-white transition-colors">On-Chain</a>
+                <a href="#tag/RESEARCH" class="hover:text-white transition-colors">Research</a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <button class="w-8 h-8 rounded-full bg-surface border border-white/5 flex items-center justify-center text-textMuted hover:text-white hover:border-white/20 transition-all">
+                    <i class="fas fa-search text-xs"></i>
+                </button>
+            </div>
+        </header>
+    </div>
+
+    <main class="flex-grow container mx-auto px-4 lg:px-8 pt-10 pb-20 max-w-[1300px]">
+        <div id="loading-skeleton" class="w-full mt-4"><div class="animate-pulse flex space-x-4"><div class="flex-1 space-y-6 py-1"><div class="h-[500px] bg-surface rounded-3xl"></div></div></div></div>
+
+        <div id="content-area" class="hidden opacity-0 transition-opacity duration-1000">
+            <section class="mb-20 reveal">
+                <div class="flex items-center justify-between mb-8 px-1">
+                    <h2 class="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+                        Editor's Picks
+                    </h2>
+                </div>
+                <div id="bento-hero" class="grid grid-cols-1 lg:grid-cols-12 gap-5 auto-rows-[280px] lg:auto-rows-[320px]"></div>
+            </section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+                <div class="lg:col-span-8 space-y-10">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-6 reveal">
+                        <h2 class="text-xl font-bold tracking-tight text-white">Latest Insights</h2>
+                        <div id="filter-status" class="hidden flex items-center gap-3">
+                            <span class="text-xs text-textMuted font-medium tracking-wide">Đang hiển thị: <span id="tag-name" class="font-bold text-accent">...</span></span>
+                            <a href="index.html#latest" class="text-[10px] font-bold text-gray-400 hover:text-white transition-colors bg-surface px-2.5 py-1.5 rounded-full border border-white/10 uppercase tracking-widest"><i class="fas fa-times mr-1"></i> Xóa lọc</a>
+                        </div>
+                    </div>
+
+                    <div id="posts-list" class="flex flex-col gap-10 scroll-mt-32"></div>
+                </div>
+
+                <aside class="lg:col-span-4 space-y-12">
+                    <div class="premium-card p-8 rounded-3xl relative overflow-hidden group reveal">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-[80px] group-hover:bg-accent/20 transition-all duration-700 pointer-events-none"></div>
+                        <div class="relative z-10">
+                            <span class="inline-block px-3 py-1 bg-accent/10 border border-accent/20 rounded-full text-[9px] font-bold tracking-widest uppercase text-accent mb-5">Bản tin độc quyền</span>
+                            <h3 class="text-2xl font-bold mb-3 text-white tracking-tight">Alpha Network</h3>
+                            <p class="text-sm text-textMuted mb-8 leading-relaxed font-serif">Nhận phân tích chuyên sâu và tín hiệu dòng tiền smart money sớm nhất.</p>
+                            <form class="space-y-3" onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã tham gia!');">
+                                <input type="email" placeholder="Nhập email của bạn..." required class="w-full bg-[#050505] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-accent/50 text-white placeholder:text-gray-600 transition-colors">
+                                <button type="submit" class="w-full bg-white text-background hover:bg-accent hover:text-white font-bold py-3.5 rounded-xl transition-all duration-300 text-sm">Đăng ký ngay</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="reveal">
+                        <h3 class="text-sm font-bold mb-6 tracking-widest uppercase text-textMuted border-b border-white/5 pb-4">
+                            Đang thịnh hành
+                        </h3>
+                        <div class="space-y-2 flex flex-col" id="trending-list"></div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <footer class="border-t border-white/5 bg-[#050505] pt-16 pb-10 mt-10">
+        <div class="container mx-auto px-4 lg:px-8 max-w-[1300px]">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-16">
+                <div class="col-span-1 md:col-span-2">
+                    <a href="index.html" class="flex items-center gap-2 text-xl font-extrabold tracking-tight mb-4">
+                        <span class="text-accent"><i class="fa-solid fa-layer-group"></i></span> Trading<span class="text-textMuted font-medium">Insight</span>
+                    </a>
+                    <p class="text-sm text-textMuted max-w-sm leading-relaxed mb-6 font-serif">Cung cấp góc nhìn vĩ mô và phân tích dữ liệu chuyên sâu, giúp bạn tự tin trong mọi quyết định đầu tư Crypto.</p>
+                    <div class="flex gap-3">
+                        <a href="#" class="w-9 h-9 rounded-full bg-surface border border-white/5 flex items-center justify-center text-textMuted hover:text-white hover:border-white/20 transition-all"><i class="fab fa-telegram-plane"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-surface border border-white/5 flex items-center justify-center text-textMuted hover:text-white hover:border-white/20 transition-all"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="col-span-2 flex gap-16 md:justify-end">
+                    <div>
+                        <h4 class="font-bold text-white mb-6 tracking-tight text-sm">Điều hướng</h4>
+                        <ul class="space-y-3 text-sm font-medium text-textMuted">
+                            <li><a href="#tag/INTELLIGENCE" class="hover:text-accent transition-colors">Intelligence</a></li>
+                            <li><a href="#tag/MARKETS" class="hover:text-accent transition-colors">Markets</a></li>
+                            <li><a href="#tag/ON-CHAIN DATA" class="hover:text-accent transition-colors">On-chain Data</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-white/5 text-center text-xs text-textMuted">
+                &copy; 2026 Trading Insight. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const formatDate = (dateString) => new Date(dateString).toLocaleDateString('vi-VN', { month: '2-digit', day: '2-digit', year: 'numeric' });
+        const getImg = (img) => (img && img.trim() !== '') ? img : 'https://images.unsplash.com/photo-1639762681485-074b7f4fc8fd?q=80&w=1200';
+
+        function renderBento(heroPosts, container) {
+            if(!heroPosts || heroPosts.length === 0) {
+                container.innerHTML = '<p class="text-textMuted">Chưa có bài viết nổi bật.</p>'; return;
+            }
+            let bentoHTML = '';
+            if(heroPosts.length >= 1) {
+                const mainPost = heroPosts[0];
+                bentoHTML += `
+                    <a href="post.html?slug=${mainPost.slug}" class="premium-card group rounded-3xl lg:col-span-8 lg:row-span-2 overflow-hidden flex flex-col justify-end p-8 md:p-12 img-zoom-container">
+                        <img src="${getImg(mainPost.image)}" class="absolute inset-0 w-full h-full object-cover opacity-60">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/70 to-transparent"></div>
+                        <div class="relative z-10 w-full max-w-2xl mt-auto">
+                            <div class="flex items-center gap-3 mb-5">
+                                <span class="bg-accent/10 border border-accent/20 text-accent text-[9px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-widest backdrop-blur-md">${mainPost.category}</span>
+                                <span class="text-xs font-medium text-gray-400">${formatDate(mainPost.date)}</span>
+                            </div>
+                            <h1 class="text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-white mb-4 leading-tight group-hover:text-accent transition-colors duration-500 tracking-tight line-clamp-2">${mainPost.title}</h1>
+                            <p class="text-gray-400 text-sm md:text-base line-clamp-2 mb-2 font-serif leading-relaxed">${mainPost.excerpt}</p>
+                        </div>
+                    </a>
+                `;
+            }
+            if(heroPosts.length >= 2) {
+                const post2 = heroPosts[1];
+                bentoHTML += `
+                    <a href="post.html?slug=${post2.slug}" class="premium-card group rounded-3xl lg:col-span-4 lg:row-span-1 overflow-hidden flex flex-col justify-end p-8 img-zoom-container">
+                        <img src="${getImg(post2.image)}" class="absolute inset-0 w-full h-full object-cover opacity-50">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#050505] to-transparent"></div>
+                        <div class="relative z-10 mt-auto">
+                            <span class="text-accent text-[9px] font-bold uppercase tracking-widest mb-3 block">${post2.category}</span>
+                            <h3 class="text-xl font-bold text-white mb-2 leading-snug group-hover:text-accent transition-colors line-clamp-2">${post2.title}</h3>
+                        </div>
+                    </a>
+                `;
+            }
+            if(heroPosts.length >= 3) {
+                const post3 = heroPosts[2];
+                bentoHTML += `
+                    <a href="post.html?slug=${post3.slug}" class="premium-card group rounded-3xl lg:col-span-4 lg:row-span-1 overflow-hidden flex flex-col justify-end p-8 img-zoom-container bg-surface">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#050505] to-transparent"></div>
+                        <div class="relative z-10 mt-auto">
+                            <span class="text-blue-400 text-[9px] font-bold uppercase tracking-widest mb-3 block">${post3.category}</span>
+                            <h3 class="text-xl font-bold text-white mb-2 leading-snug group-hover:text-blue-400 transition-colors line-clamp-2">${post3.title}</h3>
+                        </div>
+                    </a>
+                `;
+            }
+            container.innerHTML = bentoHTML;
+        }
+
+        function renderList(posts, container) {
+            if(!posts || posts.length === 0) {
+                container.innerHTML = '<p class="text-textMuted py-4">Chưa có bài viết nào.</p>'; return;
+            }
+            let html = '';
+            posts.forEach(post => {
+                html += `
+                    <article class="group flex flex-col sm:flex-row gap-8 items-center border-b border-white/5 pb-10 reveal active">
+                        <a href="post.html?slug=${post.slug}" class="w-full sm:w-[35%] aspect-[4/3] rounded-2xl overflow-hidden relative premium-card img-zoom-container shrink-0">
+                            <img src="${getImg(post.image)}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+                        </a>
+                        <div class="flex-1 flex flex-col justify-center">
+                            <div class="flex items-center gap-3 text-[10px] font-semibold text-textMuted mb-4 uppercase tracking-widest">
+                                <a href="index.html#tag/${post.category}" class="text-accent hover:text-white transition-colors">${post.category}</a>
+                                <span class="w-1 h-1 bg-white/10 rounded-full"></span>
+                                <span>${formatDate(post.date)}</span>
+                            </div>
+                            <h3 class="text-xl md:text-2xl font-bold text-white mb-3 leading-tight group-hover:text-accent transition-colors"><a href="post.html?slug=${post.slug}">${post.title}</a></h3>
+                            <p class="text-[15px] text-gray-400 line-clamp-2 leading-relaxed font-serif">${post.excerpt}</p>
+                        </div>
+                    </article>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function filterAndRender() {
+            const bentoHero = document.getElementById('bento-hero');
+            const listContainer = document.getElementById('posts-list');
+            const trendingContainer = document.getElementById('trending-list');
+            const filterStatus = document.getElementById('filter-status');
+            const tagNameSpan = document.getElementById('tag-name');
+
+            let posts = [];
+            try {
+                let localData = localStorage.getItem('crypto_posts');
+                if (localData) posts = JSON.parse(localData);
+            } catch (e) {
+                console.warn("Lỗi đọc dữ liệu local.", e);
+            }
+
+            if (!Array.isArray(posts)) posts = [];
+            let publishedPosts = posts.filter(p => p.status === 'published').sort((a,b) => b.id - a.id);
+
+            const hash = window.location.hash.substring(1);
+            let activeTag = null;
+            if (hash.startsWith('tag/')) {
+                activeTag = decodeURIComponent(hash.substring(4)).toUpperCase();
+            }
+
+            // Trending
+            let trendHTML = '';
+            if(publishedPosts.length > 0) {
+                publishedPosts.slice(0, 5).forEach((post, index) => {
+                    trendHTML += `
+                        <a href="post.html?slug=${post.slug}" class="group p-4 rounded-2xl hover:bg-surface border border-transparent hover:border-white/5 transition-all flex items-start gap-5">
+                            <span class="text-3xl font-black text-white/5 group-hover:text-accent/30 transition-colors mt-[-4px]">0${index+1}</span>
+                            <div><h4 class="text-sm font-bold text-gray-300 group-hover:text-white transition-colors leading-snug line-clamp-2">${post.title}</h4></div>
+                        </a>
+                    `;
+                });
+            } else {
+                trendHTML = '<p class="text-xs text-textMuted">Chưa có dữ liệu</p>';
+            }
+            trendingContainer.innerHTML = trendHTML;
+
+            // Lọc và Render
+            if (activeTag) {
+                bentoHero.parentElement.style.display = 'none';
+                filterStatus.classList.remove('hidden');
+                tagNameSpan.innerText = activeTag;
+                const filtered = publishedPosts.filter(p => p.category && p.category.toUpperCase() === activeTag);
+                if(filtered.length === 0) listContainer.innerHTML = `<p class="p-10 text-center bg-surface border border-white/5 rounded-2xl text-textMuted font-serif">Không tìm thấy bài viết cho chuyên mục <span class="text-white font-sans font-bold">${activeTag}</span>.</p>`;
+                else renderList(filtered, listContainer);
+            } else {
+                bentoHero.parentElement.style.display = 'block';
+                filterStatus.classList.add('hidden');
+                renderBento(publishedPosts.slice(0, 3), bentoHero);
+                renderList(publishedPosts.slice(3), listContainer);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const loadingSkeleton = document.getElementById('loading-skeleton');
+            const contentArea = document.getElementById('content-area');
+
+            try {
+                let posts = [];
+                let localData = localStorage.getItem('crypto_posts');
+                if (localData) {
+                    try { posts = JSON.parse(localData); } catch(e) {}
+                }
+
+                // Nếu chưa có mảng data nào hợp lệ, gọi fetch để lấy mẫu
+                if (!Array.isArray(posts) || posts.length === 0) {
+                    const response = await fetch('./data/posts.json');
+                    if (response.ok) {
+                        posts = await response.json();
+                        localStorage.setItem('crypto_posts', JSON.stringify(posts));
+                    }
+                }
+            } catch (error) { 
+                console.warn("Sử dụng dữ liệu LocalStorage (Offline)"); 
+            }
+            
+            // Dù fetch lỗi hay đúng, luôn gọi hàm Render và mở giao diện
+            filterAndRender();
+
+            loadingSkeleton.style.display = 'none';
+            contentArea.classList.remove('hidden');
+            setTimeout(() => { contentArea.classList.remove('opacity-0'); }, 50);
+        });
+
+        window.addEventListener('hashchange', filterAndRender);
+
+        let lastScrollY = window.scrollY;
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > lastScrollY && window.scrollY > 100) nav.parentElement.style.transform = 'translateY(-150%)';
+            else nav.parentElement.style.transform = 'translateY(0)';
+            lastScrollY = window.scrollY;
+        });
+    </script>
+</body>
+</html>
