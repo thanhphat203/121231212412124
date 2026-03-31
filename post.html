@@ -124,8 +124,9 @@
             const contentEl = document.getElementById('post-content');
 
             if (!slug) { 
-                contentEl.innerHTML = `<h2 class="text-center font-sans text-xl text-textMuted p-10">Bài viết không tồn tại.</h2>`; 
+                contentEl.innerHTML = `<h2 class="text-center font-sans text-xl text-textMuted p-10 border border-white/5 rounded-2xl bg-surface/50">Bài viết không tồn tại.</h2>`; 
                 document.getElementById('post-title').innerText = "Lỗi hiển thị";
+                document.getElementById('post-category').innerText = "ERROR";
                 return; 
             }
 
@@ -146,8 +147,9 @@
 
                 const post = posts.find(p => p.slug === slug);
                 if (!post) { 
-                    contentEl.innerHTML = `<h2 class="text-center font-sans text-xl text-textMuted p-10">Không tìm thấy bài viết.</h2>`; 
+                    contentEl.innerHTML = `<h2 class="text-center font-sans text-xl text-textMuted p-10 border border-white/5 rounded-2xl bg-surface/50">Không tìm thấy bài viết.</h2>`; 
                     document.getElementById('post-title').innerText = "Lỗi hiển thị";
+                    document.getElementById('post-category').innerText = "ERROR";
                     return; 
                 }
 
@@ -165,7 +167,7 @@
                 contentEl.innerHTML = marked.parse(post.content || '');
                 generateTOC();
             } catch (error) { 
-                contentEl.innerHTML = `<p class="text-center text-red-400 p-10 font-sans">Lỗi kết nối. Vui lòng thử lại.</p>`; 
+                contentEl.innerHTML = `<p class="text-center text-red-400 p-10 font-sans border border-white/5 rounded-2xl bg-surface/50">Lỗi kết nối. Vui lòng thử lại.</p>`; 
                 document.getElementById('post-title').innerText = "Lỗi kết nối";
             }
         });
@@ -190,7 +192,7 @@
         function generateTOC() {
             const headings = document.getElementById('post-content').querySelectorAll('h2, h3');
             const toc = document.getElementById('toc');
-            if(headings.length === 0) { toc.innerHTML = '<span class="text-xs text-gray-600">Không có mục lục</span>'; return; }
+            if(headings.length === 0) { toc.innerHTML = '<span class="text-xs text-gray-600 font-serif italic">Không có mục lục</span>'; return; }
 
             headings.forEach((heading, i) => {
                 const id = `heading-${i}`; heading.id = id;
